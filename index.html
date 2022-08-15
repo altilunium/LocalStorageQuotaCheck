@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<title>Test of localStorage limits/quota</title>
+<style>body {max-width: 30em; margin:auto;}</style>
+</head>
+
+<body>
+  <h1>Test of localStorage limits/quota. (Forked from <a href="https://arty.name/localstorage.html">arty.name</a></h1>
+<h2>This page tries to detect how many characters your browser may save to window.localStorage. Accuracy is 2 first digits.</h2>
+
+<p><strong>Important update:</strong> You can get much more information in <a href="http://www.html5rocks.com/en/tutorials/offline/quota-research/">this research on browser storage</a>.</p>
+
+<p>Please sit back and relax™ while this script tests your browser. </p>
+
+<p>The script constructs very long strings and tries to save them to <code>window.localStorage</code>. 
+When that fails, it reports last successful length and current failing length.</p>
+
+<p> 
+<a href="http://dev.w3.org/html5/webstorage/#disk-space">Spec arbitrarily recommends 5 megabytes of storage</a>, 
+but doesn't say a thing about actual characters, so in UTF-16 you get twice less.</p>
+
+<p>At any moment you can <button onclick="iterationsData=[];window.localStorage.clear();results.innerHTML+=' Test stopped manually.'">stop the test and clear storage</button></p>
+
+
+<h2>Results will appear below:</h2>
+
+<div id="results"></div>
+
+
+<script>
+var iterationsData;
+var results = document.getElementById('results');
+
+(function () {
+
+if (!('localStorage' in window)) {
+    results.innerHTML = 'Your browser has no localStorage support.';
+    return;
+}
+
+var n10b =    '0123456789';
+var n100b =   repeat(n10b, 10);
+var n1kib =   repeat(n100b, 10);
+var n10kib =  repeat(n1kib, 10);
+var n100kib = repeat(n10kib, 10);
+var n1mib =   repeat(n100kib, 10);
+var n10mib =  repeat(n1mib, 10);
+
+var values = [n10b, n100b, n1kib, n10kib, n100kib, n1mib, n10mib];
+
+iterationsData = [];
+for (var majorIndex = 1; majorIndex < values.length; majorIndex++) {
+    var major = values[majorIndex];
+    var minor = values[majorIndex - 1];
+    for (var i = 1; i < 10; i++) {
+        for (var j = 0; j < 10; j++) {
+            iterationsData.push([major, minor, i, j]);
+        }
+    }
+}
+
+var index = 0;
+var oldLength = 0;
+
+function iteration() {
+    var data = iterationsData[index];
+
+    major = data[0];
+    minor = data[1];
+    i = data[2];
+    j = data[3];
+
+    var string = repeat(major, i) + repeat(minor, j);
+    var length = '' + string.length;
+
+    if (test(string)) {
+        results.innerHTML = length + ' characters were stored successfully.';
+    } else {
+        results.innerHTML = oldLength + ' characters were stored successfully,  but ' + length + ' weren\'t.';
+        return;
+    }
+    oldLength = length;
+
+    index++;
+    if (index < iterationsData.length) {
+        setTimeout(iteration, 0);
+    } else {
+        results.innerHTML = oldLength + ' characters were saved successfully, test is stopped.';
+    }
+}
+
+iteration();
+
+function test(value) {
+    try {
+        localStorage.test = value;
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function repeat(string, count) {
+    var array = [];
+    while (count--) {
+        array.push(string);
+    }
+    return array.join('');
+}
+
+})();
+</script>
+
+</body>
+</html>
