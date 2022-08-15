@@ -18,9 +18,6 @@
 <p>The script constructs very long strings and tries to save them to <code>window.localStorage</code>. 
 When that fails, it reports last successful length and current failing length.</p>
 
-<p> 
-<a href="http://dev.w3.org/html5/webstorage/#disk-space">Spec arbitrarily recommends 5 megabytes of storage</a>, 
-but doesn't say a thing about actual characters, so in UTF-16 you get twice less.</p>
 
 <p>At any moment you can <button onclick="iterationsData=[];window.localStorage.clear();results.innerHTML+=' Test stopped manually.'">stop the test and clear storage</button></p>
 
